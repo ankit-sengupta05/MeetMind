@@ -7,7 +7,7 @@ import { Client } from '@microsoft/microsoft-graph-client';
 import { ClientSecretCredential } from '@azure/identity';
 import { TokenCredentialAuthenticationProvider } from '@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials/index.js';
 import { config } from '../config/env.js';
-import { ActionItem, Meeting } from '@meetmind/shared';
+import { ActionItem } from '@meetmind/shared';
 import { MeetingRepository } from '../db/repositories.js';
 
 const credential = new ClientSecretCredential(
