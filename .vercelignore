@@ -1,0 +1,19 @@
+# .vercelignore
+# Ignore Azure specific folders to keep Vercel deployment fast and small
+functions/
+agents/
+
+# Ignore node_modules
+node_modules/
+
+# Ignore environment variables
+.env
+.env.*
+!.env.example
+!.env.local.example
+!.env.production
+
+# Ignore python scripts
+fix_*.py
+relax_*.py
+*.py

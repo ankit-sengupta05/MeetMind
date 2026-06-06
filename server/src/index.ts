@@ -65,11 +65,14 @@ app.use(`${API_V1}/agents`, agentsRouter);
 app.use(errorHandler);
 
 // ---------------------------------------------------------------------------
-// Start server
+// Start server (only if not running on Vercel)
 // ---------------------------------------------------------------------------
 const port = config.port;
-app.listen(port, () => {
-  logger.info(`MeetMind API server running on port ${port} [${config.nodeEnv}]`);
-});
+if (process.env.VERCEL !== '1') {
+  app.listen(port, () => {
+    logger.info(`MeetMind API server running on port ${port} [${config.nodeEnv}]`);
+  });
+}
 
 export { app };
+export default app;

@@ -21,6 +21,7 @@
     "build:server": "npm run build --workspace=server",
     "build:functions": "npm run build --workspace=functions",
     "build:agents": "npm run build --workspace=agents",
+    "vercel-build": "npm run build --workspace=shared && npm run build --workspace=client && npm run build --workspace=server",
     "lint": "npm run lint --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "clean": "rimraf node_modules **/node_modules **/dist **/build",
