@@ -165,8 +165,8 @@ meetingsRouter.post('/:id/sync-tasks', async (req: AuthenticatedRequest, res) =>
     throw createError('No action items to sync', 400);
   }
 
-  const syncedTasks = [];
-  const errors = [];
+  const syncedTasks: any[] = [];
+  const errors: any[] = [];
 
   for (const item of meeting.actionItems) {
     if (item.plannerTaskId) {

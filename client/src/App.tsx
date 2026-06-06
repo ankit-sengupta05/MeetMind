@@ -132,11 +132,11 @@ export function App() {
         <div className={styles.container}>
           <div className={styles.header}>
             <TabList selectedValue={activeTab}>
-              <Tab value="live" as="div"><Link to="/live" style={{ color: 'inherit', textDecoration: 'none' }}>Live Meeting</Link></Tab>
-              <Tab value="history" as="div"><Link to="/history" style={{ color: 'inherit', textDecoration: 'none' }}>History</Link></Tab>
-              <Tab value="search" as="div"><Link to="/search" style={{ color: 'inherit', textDecoration: 'none' }}>Search</Link></Tab>
-              <Tab value="tasks" as="div"><Link to="/tasks" style={{ color: 'inherit', textDecoration: 'none' }}>Tasks</Link></Tab>
-              <Tab value="settings" as="div"><Link to="/settings" style={{ color: 'inherit', textDecoration: 'none' }}>Settings</Link></Tab>
+              <Tab value="live" ><Link to="/live" style={{ color: 'inherit', textDecoration: 'none' }}>Live Meeting</Link></Tab>
+              <Tab value="history" ><Link to="/history" style={{ color: 'inherit', textDecoration: 'none' }}>History</Link></Tab>
+              <Tab value="search" ><Link to="/search" style={{ color: 'inherit', textDecoration: 'none' }}>Search</Link></Tab>
+              <Tab value="tasks" ><Link to="/tasks" style={{ color: 'inherit', textDecoration: 'none' }}>Tasks</Link></Tab>
+              <Tab value="settings" ><Link to="/settings" style={{ color: 'inherit', textDecoration: 'none' }}>Settings</Link></Tab>
             </TabList>
           </div>
           <div className={styles.content}>

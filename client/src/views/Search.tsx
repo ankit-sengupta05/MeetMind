@@ -9,7 +9,7 @@ import { SearchRegular } from '@fluentui/react-icons';
 import { useMsal } from '@azure/msal-react';
 import axios from 'axios';
 import { SearchResultCard } from '../components/SearchResultCard';
-import { SearchResultItem } from '../../../server/src/services/search';
+import { SearchResult } from '@meetmind/shared';
 
 const useStyles = makeStyles({
   container: {
@@ -49,7 +49,7 @@ export function Search() {
   const styles = useStyles();
   const { instance, accounts } = useMsal();
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<SearchResultItem[]>([]);
+  const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 

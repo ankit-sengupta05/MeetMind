@@ -24,7 +24,7 @@
     "lint": "npm run lint --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "clean": "rimraf node_modules **/node_modules **/dist **/build",
-    "typecheck": "npm run typecheck --workspaces --if-present",
+    "typecheck": "npm run build --workspace=@meetmind/shared && npm run typecheck --workspaces --if-present",
     "prepare": "husky install",
     "seed:demo": "tsx --tsconfig server/tsconfig.json scripts/seedDemoData.ts"
   },

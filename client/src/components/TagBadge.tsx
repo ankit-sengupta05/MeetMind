@@ -5,8 +5,9 @@
 
 import React from 'react';
 import { Badge } from '@fluentui/react-components';
+import { SegmentTagType } from '@meetmind/shared';
 
-export type TagBadgeVariant = 'decision' | 'action_item' | 'blocker' | 'key_point';
+export type TagBadgeVariant = SegmentTagType | 'decision' | 'action_item' | 'blocker' | 'key_point';
 
 interface TagBadgeProps {
   variant: TagBadgeVariant;

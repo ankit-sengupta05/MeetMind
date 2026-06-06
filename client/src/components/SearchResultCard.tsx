@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { Card, CardHeader, Text, Button, makeStyles, tokens } from '@fluentui/react-components';
-import { SearchResultItem } from '../../../server/src/services/search'; // Shared interface
+import { SearchResult } from '@meetmind/shared'; // Shared interface
 import { Link } from 'react-router-dom';
 
 const useStyles = makeStyles({
@@ -29,7 +29,7 @@ const useStyles = makeStyles({
 });
 
 interface SearchResultCardProps {
-  result: SearchResultItem;
+  result: SearchResult;
 }
 
 export function SearchResultCard({ result }: SearchResultCardProps) {
@@ -43,7 +43,7 @@ export function SearchResultCard({ result }: SearchResultCardProps) {
       />
       
       <div className={styles.snippet}>
-        <Text>"{result.summaryText}..."</Text>
+        <Text>"{result.snippet}..."</Text>
       </div>
 
       <div className={styles.footer}>
