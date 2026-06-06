@@ -26,7 +26,7 @@
     "test": "npm run test --workspaces --if-present",
     "clean": "rimraf node_modules **/node_modules **/dist **/build",
     "typecheck": "npm run build --workspace=@meetmind/shared && npm run typecheck --workspaces --if-present",
-    "prepare": "husky install",
+    "prepare": "husky install || echo \"Husky skipped\"",
     "seed:demo": "tsx --tsconfig server/tsconfig.json scripts/seedDemoData.ts"
   },
   "devDependencies": {
