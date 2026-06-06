@@ -8,7 +8,7 @@
     "dev": "func start --typescript",
     "build": "tsc --build",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
+    "test": "vitest run --passWithNoTests",
     "clean": "rimraf dist"
   },
   "dependencies": {

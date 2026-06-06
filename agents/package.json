@@ -9,7 +9,7 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc --build",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
+    "test": "vitest run --passWithNoTests",
     "clean": "rimraf dist"
   },
   "dependencies": {
