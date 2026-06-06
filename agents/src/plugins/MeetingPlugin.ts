@@ -1,7 +1,7 @@
 // =============================================================================
 // agents/src/plugins/MeetingPlugin.ts
 // Semantic Kernel plugin exposing meeting knowledge functions to the kernel
-// These are invokable by planner and chat agents
+// These are invocable by planner and chat agents
 // =============================================================================
 
 import { KernelFunction, kernel_function } from '@semantic-kernel/core';
