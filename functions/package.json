@@ -1,0 +1,36 @@
+{
+  "name": "@meetmind/functions",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Azure Functions v4 for MeetMind background processing",
+  "main": "dist/functions/*.js",
+  "scripts": {
+    "dev": "func start --typescript",
+    "build": "tsc --build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@azure/cosmos": "^4.1.0",
+    "@azure/functions": "^4.5.0",
+    "@azure/identity": "^4.3.0",
+    "@azure/openai": "^2.0.0",
+    "@azure/search-documents": "^12.1.0",
+    "@azure/service-bus": "^7.9.5",
+    "@azure/storage-blob": "^12.24.0",
+    "@meetmind/shared": "*",
+    "dotenv": "^16.4.5",
+    "uuid": "^10.0.0",
+    "winston": "^3.13.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/uuid": "^10.0.0",
+    "azure-functions-core-tools": "^4.0.6610",
+    "rimraf": "^5.0.7",
+    "tsx": "^4.15.7",
+    "typescript": "^5.5.2",
+    "vitest": "^1.6.0"
+  }
+}

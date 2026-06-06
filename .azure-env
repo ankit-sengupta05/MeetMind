@@ -1,0 +1,12 @@
+# =============================================================================
+# MeetMind – Azure Deployment Configuration
+# Used by Azure App Service and Azure Functions for production settings
+# These values are set via Azure Portal → Configuration → Application settings
+# =============================================================================
+
+# Do not commit this file with real values.
+# Use Azure Key Vault references in production: @Microsoft.KeyVault(SecretUri=...)
+
+NODE_ENV=production
+WEBSITE_NODE_DEFAULT_VERSION=~20
+SCM_DO_BUILD_DURING_DEPLOYMENT=true

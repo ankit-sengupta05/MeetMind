@@ -1,0 +1,163 @@
+{
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.16/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.16",
+  "version": "1.0.0",
+  "id": "{{TEAMS_APP_ID}}",
+  "packageName": "com.meetmind.app",
+  "developer": {
+    "name": "MeetMind",
+    "websiteUrl": "https://meetmind.yourdomain.com",
+    "privacyUrl": "https://meetmind.yourdomain.com/privacy",
+    "termsOfUseUrl": "https://meetmind.yourdomain.com/terms"
+  },
+  "icons": {
+    "color": "icons/color.png",
+    "outline": "icons/outline.png"
+  },
+  "name": {
+    "short": "MeetMind",
+    "full": "MeetMind – AI Meeting Co-pilot"
+  },
+  "description": {
+    "short": "Turn every meeting into actionable knowledge",
+    "full": "MeetMind is an AI co-pilot that transcribes, tags, summarises, and indexes every Teams meeting. Search across all your meeting knowledge using natural language, auto-assign action items to Planner, and never lose track of a decision again."
+  },
+  "accentColor": "#5C2D91",
+  "staticTabs": [
+    {
+      "entityId": "meetmind-dashboard",
+      "name": "Dashboard",
+      "contentUrl": "https://{{HOSTNAME}}/dashboard",
+      "websiteUrl": "https://{{HOSTNAME}}/dashboard",
+      "scopes": ["personal"]
+    },
+    {
+      "entityId": "meetmind-search",
+      "name": "Search",
+      "contentUrl": "https://{{HOSTNAME}}/search",
+      "websiteUrl": "https://{{HOSTNAME}}/search",
+      "scopes": ["personal"]
+    },
+    {
+      "entityId": "meetmind-actions",
+      "name": "Action Items",
+      "contentUrl": "https://{{HOSTNAME}}/actions",
+      "websiteUrl": "https://{{HOSTNAME}}/actions",
+      "scopes": ["personal"]
+    }
+  ],
+  "configurableTabs": [
+    {
+      "configurationUrl": "https://{{HOSTNAME}}/tab-config",
+      "canUpdateConfiguration": true,
+      "scopes": ["team", "groupChat"],
+      "context": [
+        "channelTab",
+        "privateChatTab",
+        "meetingChatTab",
+        "meetingDetailsTab",
+        "meetingSidePanel"
+      ]
+    }
+  ],
+  "bots": [
+    {
+      "botId": "{{BOT_APP_ID}}",
+      "scopes": ["personal", "team", "groupChat"],
+      "supportsFiles": false,
+      "isNotificationOnly": false,
+      "commandLists": [
+        {
+          "scopes": ["personal", "team", "groupChat"],
+          "commands": [
+            {
+              "title": "summary",
+              "description": "Get the summary of the latest or a specific meeting"
+            },
+            {
+              "title": "search",
+              "description": "Search across all meeting knowledge using natural language"
+            },
+            {
+              "title": "tasks",
+              "description": "View your pending action items from all meetings"
+            },
+            {
+              "title": "brief",
+              "description": "Get a pre-meeting brief for your next scheduled meeting"
+            },
+            {
+              "title": "help",
+              "description": "Show all available MeetMind commands"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "connectors": [],
+  "composeExtensions": [
+    {
+      "botId": "{{BOT_APP_ID}}",
+      "commands": [
+        {
+          "id": "searchMeetings",
+          "type": "query",
+          "title": "Search Meetings",
+          "description": "Search your meeting knowledge base",
+          "initialRun": false,
+          "fetchTask": false,
+          "context": ["compose", "commandBox"],
+          "parameters": [
+            {
+              "name": "searchQuery",
+              "title": "Search Query",
+              "description": "What to search for in your meeting history",
+              "inputType": "text"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "permissions": [
+    "identity",
+    "messageTeamMembers"
+  ],
+  "validDomains": [
+    "{{HOSTNAME}}",
+    "token.botframework.com",
+    "login.microsoftonline.com"
+  ],
+  "webApplicationInfo": {
+    "id": "{{AZURE_AD_CLIENT_ID}}",
+    "resource": "api://{{HOSTNAME}}/{{AZURE_AD_CLIENT_ID}}"
+  },
+  "authorization": {
+    "permissions": {
+      "resourceSpecific": [
+        {
+          "name": "OnlineMeeting.ReadBasic.Chat",
+          "type": "Application"
+        },
+        {
+          "name": "ChannelMessage.Read.Group",
+          "type": "Application"
+        },
+        {
+          "name": "ChatMessage.Read.Chat",
+          "type": "Application"
+        },
+        {
+          "name": "TeamsActivity.Send.User",
+          "type": "Application"
+        }
+      ]
+    }
+  },
+  "defaultGroupCapability": {
+    "meetings": "tab",
+    "groupChat": "bot",
+    "team": "tab"
+  }
+}

@@ -1,0 +1,49 @@
+/* =============================================================================
+   client/src/styles/global.css
+   Global reset and CSS custom properties
+   Fluent UI v9 handles component tokens – this sets base page styles only
+   ============================================================================= */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar styling for Teams aesthetic */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+/* Transcript highlight animation */
+@keyframes highlight-fade {
+  0%   { background-color: rgba(92, 45, 145, 0.25); }
+  100% { background-color: transparent; }
+}
+
+.segment-highlight {
+  animation: highlight-fade 2s ease-out forwards;
+}
+
+/* Full-height layout helper */
+.full-height {
+  height: 100%;
+}

@@ -1,4 +1,4 @@
-﻿# Python
+# Python
 __pycache__/
 *.pyc
 *.pyo
@@ -53,6 +53,25 @@ vendor/bundle/
 
 # Logs
 *.log
+
+# Monorepo build artifacts
+**/dist/
+**/*.tsbuildinfo
+**/coverage/
+
+# Azure Functions local secrets (contains connection strings)
+functions/local.settings.json
+
+# Vite build cache
+client/.vite/
+
+# Teams app package (built artifact)
+*.zip
+teams-package/
+
+# Azure deployment
+.deployment
+deploy.cmd
 
 # Secrets -- NEVER commit these
 .env

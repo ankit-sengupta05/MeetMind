@@ -1,0 +1,41 @@
+{
+  "name": "meetmind",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MeetMind – AI co-pilot for Microsoft Teams that converts meetings into actionable knowledge artifacts",
+  "workspaces": [
+    "shared",
+    "client",
+    "server",
+    "functions",
+    "agents"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:client": "npm run dev --workspace=client",
+    "dev:server": "npm run dev --workspace=server",
+    "dev:functions": "npm run dev --workspace=functions",
+    "dev:agents": "npm run dev --workspace=agents",
+    "build": "npm run build --workspaces --if-present",
+    "build:client": "npm run build --workspace=client",
+    "build:server": "npm run build --workspace=server",
+    "build:functions": "npm run build --workspace=functions",
+    "build:agents": "npm run build --workspace=agents",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "clean": "rimraf node_modules **/node_modules **/dist **/build",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "concurrently": "^8.2.2",
+    "husky": "^9.0.11",
+    "rimraf": "^5.0.7",
+    "typescript": "^5.5.2"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}
