@@ -1,59 +1,155 @@
-﻿name: CI -- Lint, Compile and Secret Check
+name: MeetMind CI/CD
 
 on:
   push:
-    branches: ["main", "dev"]
+    branches: [main, dev]
   pull_request:
+    branches: [main]
+
+env:
+  NODE_VERSION: '20.x'
 
 jobs:
-  lint_compile_check:
+  # ============================================================
+  # Lint, type-check, and test all workspaces
+  # ============================================================
+  quality:
+    name: Quality Gates
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-
-      - name: Set up Node.js
+      - name: Setup Node ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build shared workspace (required by all others)
+        run: npm run build --workspace=shared
+
+      - name: Type-check all workspaces
+        run: npm run typecheck --workspaces --if-present
+
+      - name: Lint all workspaces
+        run: npm run lint --workspaces --if-present
+
+      - name: Run tests
+        run: npm run test --workspaces --if-present
+
+  # ============================================================
+  # Build client for deployment verification
+  # ============================================================
+  build-client:
+    name: Build Client
+    runs-on: ubuntu-latest
+    needs: quality
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
         with:
-          java-version: "17"
-          distribution: "temurin"
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
-      - name: Set up Go
-        uses: actions/setup-go@v5
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build shared
+        run: npm run build --workspace=shared
+
+      - name: Build client
+        env:
+          VITE_AZURE_AD_CLIENT_ID: ${{ secrets.VITE_AZURE_AD_CLIENT_ID }}
+          VITE_AZURE_AD_TENANT_ID: ${{ secrets.VITE_AZURE_AD_TENANT_ID }}
+          VITE_REDIRECT_URI: ${{ secrets.VITE_REDIRECT_URI }}
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+        run: npm run build --workspace=client
+
+      - name: Upload client build artifact
+        uses: actions/upload-artifact@v4
         with:
-          go-version: "1.21"
+          name: client-dist
+          path: client/dist/
+          retention-days: 7
 
-      - name: Install Python tools
-        run: |
-          python -m pip install --upgrade pip
-          pip install pre-commit flake8
+  # ============================================================
+  # Build server
+  # ============================================================
+  build-server:
+    name: Build Server
+    runs-on: ubuntu-latest
+    needs: quality
+    steps:
+      - uses: actions/checkout@v4
 
-      - name: Install Node tools
-        run: npm install -g @babel/parser
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
-      - name: Run all pre-commit hooks
-        run: pre-commit run --all-files
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Check for raw secrets in source
+      - name: Build shared
+        run: npm run build --workspace=shared
+
+      - name: Build server
+        run: npm run build --workspace=server
+
+  # ============================================================
+  # Security scan — check for secrets in source
+  # ============================================================
+  security:
+    name: Secret Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for raw secrets in source files
         run: |
           if grep -rE \
-            "(API_KEY|SECRET_KEY|PRIVATE_KEY|PASSWORD|AUTH_TOKEN)=[^*[:space:]]+" \
-            --include="*.js" --include="*.ts" \
-            --include="*.jsx" --include="*.tsx" \
-            --include="*.py" --include="*.java" --include="*.go" \
-            --exclude-dir=node_modules --exclude-dir=.git .; then
-            echo "[FAIL] Raw secrets detected!"
+            "(API_KEY|SECRET_KEY|PRIVATE_KEY|PASSWORD|AUTH_TOKEN|CLIENT_SECRET)=[^*\$\{[:space:]][^\n]{5,}" \
+            --include="*.ts" --include="*.tsx" --include="*.js" \
+            --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=dist .; then
+            echo "❌ Possible raw secrets detected!"
             exit 1
           else
-            echo "[OK] No raw secrets found."
+            echo "✅ No raw secrets found in source files."
           fi
+
+  # ============================================================
+  # Deploy to Azure App Service (main branch only)
+  # ============================================================
+  deploy-server:
+    name: Deploy API to Azure App Service
+    runs-on: ubuntu-latest
+    needs: [build-server, security]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install and build
+        run: |
+          npm ci
+          npm run build --workspace=shared
+          npm run build --workspace=server
+
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: meetmind-api
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: ./server

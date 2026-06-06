@@ -1,26 +1,49 @@
 // =============================================================================
 // client/src/App.tsx
-// Root component – handles auth guard, routing, and layout
+// Root App Shell — Teams Context, MSAL Auth, Fluent theming, and Routing
 // =============================================================================
 
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { useIsAuthenticated, useMsal } from '@azure/msal-react';
+import { app as teamsApp } from '@microsoft/teams-js';
 import {
+  FluentProvider,
+  teamsLightTheme,
+  teamsDarkTheme,
+  teamsHighContrastTheme,
   Spinner,
   makeStyles,
   tokens,
+  TabList,
+  Tab,
 } from '@fluentui/react-components';
 
-import { AppShell } from './components/layout/AppShell';
-import { LoginPage } from './pages/LoginPage';
-import { DashboardPage } from './pages/DashboardPage';
-import { MeetingDetailPage } from './pages/MeetingDetailPage';
-import { SearchPage } from './pages/SearchPage';
-import { ActionItemsPage } from './pages/ActionItemsPage';
-import { SettingsPage } from './pages/SettingsPage';
+import { LiveMeeting } from './views/LiveMeeting';
+import { History } from './views/History';
+import { Search } from './views/Search';
+import { Tasks } from './views/Tasks';
+import { Settings } from './views/Settings';
+import { MeetingSummary } from './views/MeetingSummary'; // We'll create a basic one
 
 const useStyles = makeStyles({
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100vh',
+    width: '100vw',
+    backgroundColor: tokens.colorNeutralBackground1,
+    color: tokens.colorNeutralForeground1,
+  },
+  header: {
+    padding: '0 16px',
+    borderBottom: `1px solid ${tokens.colorNeutralStroke1}`,
+  },
+  content: {
+    flexGrow: 1,
+    overflow: 'auto',
+    position: 'relative',
+  },
   loadingContainer: {
     display: 'flex',
     alignItems: 'center',
@@ -32,44 +55,104 @@ const useStyles = makeStyles({
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useIsAuthenticated();
-  const { inProgress } = useMsal();
+  const { inProgress, instance } = useMsal();
   const styles = useStyles();
 
-  if (inProgress !== 'none') {
+  useEffect(() => {
+    if (!isAuthenticated && inProgress === 'none') {
+      // In a real Teams Tab, we'd use teamsApp.authentication.authenticate()
+      // For local dev with browser, standard redirect works.
+      instance.loginRedirect().catch(console.error);
+    }
+  }, [isAuthenticated, inProgress, instance]);
+
+  if (!isAuthenticated || inProgress !== 'none') {
     return (
       <div className={styles.loadingContainer}>
-        <Spinner label="Signing in to MeetMind..." size="large" />
+        <Spinner label="Authenticating..." size="large" />
       </div>
     );
-  }
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
   }
 
   return <>{children}</>;
 }
 
 export function App() {
-  return (
-    <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route
-        path="/"
-        element={
-          <AuthGuard>
-            <AppShell />
-          </AuthGuard>
+  const [theme, setTheme] = useState(teamsLightTheme);
+  const [isTeamsInitialized, setIsTeamsInitialized] = useState(false);
+  const styles = useStyles();
+  const location = useLocation();
+
+  useEffect(() => {
+    teamsApp.initialize().then(() => {
+      setIsTeamsInitialized(true);
+      teamsApp.getContext().then(context => {
+        switch (context.app.theme) {
+          case 'dark':
+            setTheme(teamsDarkTheme);
+            break;
+          case 'contrast':
+            setTheme(teamsHighContrastTheme);
+            break;
+          default:
+            setTheme(teamsLightTheme);
+            break;
         }
-      >
-        <Route index element={<Navigate to="/dashboard" replace />} />
-        <Route path="dashboard" element={<DashboardPage />} />
-        <Route path="meetings/:id" element={<MeetingDetailPage />} />
-        <Route path="search" element={<SearchPage />} />
-        <Route path="actions" element={<ActionItemsPage />} />
-        <Route path="settings" element={<SettingsPage />} />
-      </Route>
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
-    </Routes>
+      });
+      
+      teamsApp.registerOnThemeChangeHandler((themeString) => {
+        if (themeString === 'dark') setTheme(teamsDarkTheme);
+        else if (themeString === 'contrast') setTheme(teamsHighContrastTheme);
+        else setTheme(teamsLightTheme);
+      });
+    }).catch(() => {
+      // Fallback for browser testing without Teams context
+      setIsTeamsInitialized(true);
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        setTheme(teamsDarkTheme);
+      }
+    });
+  }, []);
+
+  if (!isTeamsInitialized) {
+    return null; // Wait for Teams context to apply correct theme before rendering FluentProvider
+  }
+
+  // Derive active tab from path
+  const currentPath = location.pathname;
+  let activeTab = 'history';
+  if (currentPath.includes('live')) activeTab = 'live';
+  else if (currentPath.includes('search')) activeTab = 'search';
+  else if (currentPath.includes('tasks')) activeTab = 'tasks';
+  else if (currentPath.includes('settings')) activeTab = 'settings';
+
+  return (
+    <FluentProvider theme={theme} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <AuthGuard>
+        <div className={styles.container}>
+          <div className={styles.header}>
+            <TabList selectedValue={activeTab}>
+              <Tab value="live" as="div"><Link to="/live" style={{ color: 'inherit', textDecoration: 'none' }}>Live Meeting</Link></Tab>
+              <Tab value="history" as="div"><Link to="/history" style={{ color: 'inherit', textDecoration: 'none' }}>History</Link></Tab>
+              <Tab value="search" as="div"><Link to="/search" style={{ color: 'inherit', textDecoration: 'none' }}>Search</Link></Tab>
+              <Tab value="tasks" as="div"><Link to="/tasks" style={{ color: 'inherit', textDecoration: 'none' }}>Tasks</Link></Tab>
+              <Tab value="settings" as="div"><Link to="/settings" style={{ color: 'inherit', textDecoration: 'none' }}>Settings</Link></Tab>
+            </TabList>
+          </div>
+          <div className={styles.content}>
+            <Routes>
+              <Route path="/" element={<Navigate to="/history" replace />} />
+              <Route path="/live" element={<LiveMeeting />} />
+              <Route path="/history" element={<History />} />
+              <Route path="/meetings/:id" element={<MeetingSummary />} />
+              <Route path="/search" element={<Search />} />
+              <Route path="/tasks" element={<Tasks />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="*" element={<Navigate to="/history" replace />} />
+            </Routes>
+          </div>
+        </div>
+      </AuthGuard>
+    </FluentProvider>
   );
 }

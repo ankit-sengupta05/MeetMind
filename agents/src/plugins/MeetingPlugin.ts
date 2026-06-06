@@ -1,59 +1,42 @@
 // =============================================================================
 // agents/src/plugins/MeetingPlugin.ts
-// Semantic Kernel plugin exposing meeting knowledge functions to the kernel
-// These are invocable by planner and chat agents
+// Semantic Kernel v0.3.0 plugin — meeting intelligence functions
+// SK v0.3.0 uses plain class methods registered via kernel.importPlugin()
+// Actual LLM completions go through @azure/openai SDK directly (SK v0.3.0
+// decorator support is not stable; will migrate to SK v1.x when available).
 // =============================================================================
 
-import { KernelFunction, kernel_function } from '@semantic-kernel/core';
-
 export class MeetingPlugin {
+  readonly name = 'MeetingPlugin';
+
   /**
    * Summarise a meeting transcript into structured points.
+   * @param transcript - Full meeting transcript text
+   * @param title - Meeting title
    */
-  @kernel_function({
-    description: 'Summarise a meeting transcript into headline, key points, and next steps',
-    name: 'SummariseMeeting',
-  })
-  async summariseMeeting(
-    @kernel_function.parameter({ description: 'The full meeting transcript text', name: 'transcript' })
-    transcript: string,
-
-    @kernel_function.parameter({ description: 'The meeting title', name: 'title' })
-    title: string,
-  ): Promise<string> {
-    // The actual LLM call is handled by SK's semantic function via prompt template.
-    // This stub is replaced by a semantic function definition loaded from prompts/
+  async summariseMeeting(transcript: string, title: string): Promise<string> {
+    // Implementation delegates to @azure/openai via processAgentJob function.
+    // This stub is registered with SK for planner orchestration.
+    void transcript; void title;
     return JSON.stringify({ headline: '', keyPoints: [], nextSteps: [] });
   }
 
   /**
-   * Extract action items from a transcript.
+   * Extract action items with assignees and due dates from a transcript.
+   * @param transcript - The meeting transcript
    */
-  @kernel_function({
-    description: 'Extract action items with assignees and due dates from a meeting transcript',
-    name: 'ExtractActionItems',
-  })
-  async extractActionItems(
-    @kernel_function.parameter({ description: 'The meeting transcript', name: 'transcript' })
-    transcript: string,
-  ): Promise<string> {
+  async extractActionItems(transcript: string): Promise<string> {
+    void transcript;
     return JSON.stringify({ actionItems: [] });
   }
 
   /**
-   * Generate a pre-meeting briefing from calendar context.
+   * Generate a focused pre-meeting brief from agenda and past meeting context.
+   * @param agenda - Meeting agenda text
+   * @param pastContext - Context from related past meetings
    */
-  @kernel_function({
-    description: 'Generate a focused pre-meeting brief based on agenda and past meetings',
-    name: 'GeneratePreMeetingBrief',
-  })
-  async generatePreMeetingBrief(
-    @kernel_function.parameter({ description: 'The meeting agenda text', name: 'agenda' })
-    agenda: string,
-
-    @kernel_function.parameter({ description: 'Context from related past meetings', name: 'pastContext' })
-    pastContext: string,
-  ): Promise<string> {
+  async generatePreMeetingBrief(agenda: string, pastContext: string): Promise<string> {
+    void agenda; void pastContext;
     return JSON.stringify({ brief: '', suggestedQuestions: [], risksToDiscuss: [] });
   }
 }

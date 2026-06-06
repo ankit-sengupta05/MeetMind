@@ -75,14 +75,16 @@ export function authMiddleware(
       }
 
       const claims = decoded as Record<string, unknown>;
-      req.user = {
+      const payload: NonNullable<AuthenticatedRequest['user']> = {
         oid: claims['oid'] as string,
         tid: claims['tid'] as string,
-        name: claims['name'] as string | undefined,
-        email: (claims['email'] ?? claims['preferred_username']) as string | undefined,
-        upn: claims['upn'] as string | undefined,
-        roles: (claims['roles'] as string[] | undefined) ?? [],
       };
+      if (claims['name']) payload.name = claims['name'] as string;
+      if (claims['email'] || claims['preferred_username']) payload.email = (claims['email'] ?? claims['preferred_username']) as string;
+      if (claims['upn']) payload.upn = claims['upn'] as string;
+      if (claims['roles']) payload.roles = claims['roles'] as string[];
+
+      req.user = payload;
 
       next();
     }

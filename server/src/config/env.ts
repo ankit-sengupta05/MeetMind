@@ -49,6 +49,7 @@ const envSchema = z.object({
   // Bot Framework
   BOT_APP_ID: z.string().min(1),
   BOT_APP_PASSWORD: z.string().min(1),
+  BOT_APP_ENDPOINT: z.string().url().default('https://localhost:3978'),
 
   // Azure Service Bus (for agent job queue)
   SERVICEBUS_CONNECTION_STRING: z.string().min(1),
@@ -121,6 +122,7 @@ export const config = {
   bot: {
     appId: parsed.BOT_APP_ID,
     appPassword: parsed.BOT_APP_PASSWORD,
+    appEndpoint: parsed.BOT_APP_ENDPOINT,
   },
 
   serviceBus: {

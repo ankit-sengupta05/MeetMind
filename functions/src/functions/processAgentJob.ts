@@ -4,9 +4,9 @@
 // =============================================================================
 
 import { app } from '@azure/functions';
-import type { ServiceBusMessage } from '@azure/functions';
+
 import { CosmosClient } from '@azure/cosmos';
-import { AzureOpenAI } from '@azure/openai';
+import { AzureOpenAI } from 'openai';
 import type { AgentJob, Meeting } from '@meetmind/shared';
 import { COSMOS_CONTAINERS, nowIso } from '@meetmind/shared';
 
@@ -26,7 +26,7 @@ const db = cosmos.database(process.env['COSMOS_DATABASE_NAME'] ?? 'meetmind');
 app.serviceBusQueue('processAgentJob', {
   queueName: process.env['SERVICEBUS_QUEUE_NAME'] ?? 'meetmind-agent-jobs',
   connection: 'SERVICEBUS_CONNECTION_STRING',
-  handler: async (message: ServiceBusMessage) => {
+  handler: async (message: unknown) => {
     const job = message as unknown as AgentJob;
     console.log(`Processing agent job: ${job.id} type=${job.type} meeting=${job.meetingId}`);
 

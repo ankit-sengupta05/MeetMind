@@ -50,7 +50,7 @@ searchRouter.post('/', async (req: AuthenticatedRequest, res) => {
     filters.push(`(${types})`);
   }
 
-  const searchResults = searchClient.search(body.query, {
+  const searchResults = await searchClient.search(body.query, {
     filter: filters.join(' and '),
     top: body.top,
     skip: body.skip,
@@ -67,18 +67,21 @@ searchRouter.post('/', async (req: AuthenticatedRequest, res) => {
   const results: SearchResult[] = [];
   for await (const result of searchResults.results) {
     const doc = result.document as Record<string, unknown>;
-    results.push({
+    const resItem: SearchResult = {
       meetingId: doc['id'] as string,
       title: doc['title'] as string,
       snippet: (result as { captions?: Array<{ text?: string }> }).captions?.[0]?.text ?? (doc['summaryText'] as string ?? '').slice(0, 200),
       score: result.score ?? 0,
-      rerankerScore: (result as { rerankerScore?: number }).rerankerScore,
-      highlights: result.highlights as Record<string, string[]> | undefined,
       meetingDate: doc['startTime'] as string,
       participants: (doc['participantNames'] as string[] | undefined) ?? [],
       tags: (doc['tags'] as string[] | undefined) ?? [],
       type: doc['meetingType'] as string ?? 'other',
-    });
+    };
+    const reranker = (result as { rerankerScore?: number }).rerankerScore;
+    if (reranker !== undefined) resItem.rerankerScore = reranker;
+    if (result.highlights) resItem.highlights = result.highlights as Record<string, string[]>;
+    
+    results.push(resItem);
   }
 
   const response: SearchResponse = {
@@ -95,5 +98,5 @@ searchRouter.get('/', async (req: AuthenticatedRequest, res) => {
   const q = z.string().min(1).max(500).parse(req.query['q']);
   req.body = { query: q };
   // Reuse POST handler logic by delegating
-  return searchRouter.handle(req, res, () => {});
+  return searchRouter(req, res, () => {});
 });

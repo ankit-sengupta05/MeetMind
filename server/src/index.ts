@@ -19,8 +19,8 @@ import { meetingsRouter } from './routes/meetings.js';
 import { searchRouter } from './routes/search.js';
 import { plannerRouter } from './routes/planner.js';
 import { agentsRouter } from './routes/agents.js';
-import { botRouter } from './routes/bot.js';
 import { healthRouter } from './routes/health.js';
+import { botRouter } from './routes/bot.js';
 import { API_V1 } from '@meetmind/shared';
 
 const app = express();
@@ -46,7 +46,7 @@ app.use(morgan('combined', { stream: { write: (msg) => logger.http(msg.trim()) }
 // Public routes (no auth required)
 // ---------------------------------------------------------------------------
 app.use(`${API_V1}/health`, healthRouter);
-app.use(`${API_V1}/bot`, botRouter);   // Bot Framework requires its own auth
+app.use(`/api/bot`, botRouter); // Bot Framework requires its own auth provided by BotBuilder
 
 // ---------------------------------------------------------------------------
 // Protected routes

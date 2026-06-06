@@ -33,24 +33,24 @@ agentsRouter.post('/jobs', async (req: AuthenticatedRequest, res) => {
     scheduledAt: z.string().datetime().optional(),
   });
 
-  const body = schema.parse(req.body);
+  const { meetingId, type, input, scheduledAt } = schema.parse(req.body);
   const container = await getAgentJobsContainer();
   const now = nowIso();
 
-  const job: AgentJob = {
+  const newJob: AgentJob = {
     id: uuidv4(),
-    meetingId: body.meetingId,
+    meetingId,
     tenantId: req.user!.tid,
-    type: body.type,
+    type,
     status: 'queued',
-    input: body.input,
     attempts: 0,
     maxAttempts: 3,
-    scheduledAt: body.scheduledAt ?? now,
+    scheduledAt: scheduledAt ?? now,
     createdAt: now,
   };
+  if (input !== undefined) newJob.input = input;
 
-  const { resource } = await container.items.create(job);
+  const { resource } = await container.items.create(newJob);
   res.status(202).json(resource);
 });
 

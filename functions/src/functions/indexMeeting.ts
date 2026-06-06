@@ -8,7 +8,7 @@ import { app } from '@azure/functions';
 import type { HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 import { CosmosClient } from '@azure/cosmos';
 import { SearchClient, AzureKeyCredential, SearchIndexClient } from '@azure/search-documents';
-import { AzureOpenAI } from '@azure/openai';
+import { AzureOpenAI } from 'openai';
 import type { Meeting, SearchIndexDocument } from '@meetmind/shared';
 import { COSMOS_CONTAINERS, SEARCH_INDEX_NAME, SEARCH_SEMANTIC_CONFIG } from '@meetmind/shared';
 
@@ -84,11 +84,11 @@ async function buildIndexDocument(meetingId: string, tenantId: string): Promise<
     id: meeting.id,
     tenantId: meeting.partitionKey,
     title: meeting.title,
-    description: meeting.description,
+    description: meeting.description ?? '',
     fullTranscript,
-    summaryText: meeting.summary?.overview,
-    decisions: meeting.decisions?.map((d) => d.title),
-    actionItemTitles: meeting.actionItems?.map((a) => a.title),
+    summaryText: meeting.summary?.overview ?? '',
+    decisions: meeting.decisions?.map((d) => d.title) ?? [],
+    actionItemTitles: meeting.actionItems?.map((a) => a.title) ?? [],
     participantNames: meeting.participants.map((p) => p.displayName),
     participantEmails: meeting.participants.map((p) => p.email),
     tags: meeting.tags ?? [],
@@ -110,10 +110,10 @@ async function ensureSearchIndex(): Promise<void> {
       fields: [
         { name: 'id', type: 'Edm.String', key: true, filterable: true },
         { name: 'tenantId', type: 'Edm.String', filterable: true },
-        { name: 'title', type: 'Edm.String', searchable: true, retrievable: true },
-        { name: 'description', type: 'Edm.String', searchable: true, retrievable: true },
-        { name: 'fullTranscript', type: 'Edm.String', searchable: true, retrievable: false },
-        { name: 'summaryText', type: 'Edm.String', searchable: true, retrievable: true },
+        { name: 'title', type: 'Edm.String', searchable: true,  },
+        { name: 'description', type: 'Edm.String', searchable: true,  },
+        { name: 'fullTranscript', type: 'Edm.String', searchable: true,  },
+        { name: 'summaryText', type: 'Edm.String', searchable: true,  },
         { name: 'decisions', type: 'Collection(Edm.String)', searchable: true },
         { name: 'actionItemTitles', type: 'Collection(Edm.String)', searchable: true },
         { name: 'participantNames', type: 'Collection(Edm.String)', searchable: true, filterable: true },
@@ -137,9 +137,9 @@ async function ensureSearchIndex(): Promise<void> {
         configurations: [{
           name: SEARCH_SEMANTIC_CONFIG,
           prioritizedFields: {
-            titleField: { fieldName: 'title' },
-            contentFields: [{ fieldName: 'summaryText' }, { fieldName: 'fullTranscript' }],
-            keywordsFields: [{ fieldName: 'decisions' }, { fieldName: 'tags' }],
+            titleField: { name: 'title' },
+            contentFields: [{ name: 'summaryText' }, { name: 'fullTranscript' }],
+            keywordsFields: [{ name: 'decisions' }, { name: 'tags' }],
           },
         }],
       },
